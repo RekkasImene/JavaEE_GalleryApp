@@ -6,11 +6,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -32,6 +33,7 @@ public class FrontController extends HttpServlet {
     
     static File dir;
     static File customerDataFile;
+    List<String> categoryList= new ArrayList<String>();
 
     // array of supported extensions (use a List if you prefer)
     static final String[] EXTENSIONS = new String[]{
@@ -55,10 +57,25 @@ public class FrontController extends HttpServlet {
 
     public void init(ServletConfig config) throws ServletException{
     	super.init(config);
-    	dir = new File(config.getInitParameter("imagesFolder"));
-   	    //ServletContext context = getServletContext();
-   	    //InputStream inp = context.getResourceAsStream((String)dir);
-    	System.out.println("name folder image : " + dir.toString());
+    	//dir = new File(config.getInitParameter("imagesFolder"));
+    	
+    	ServletContext context = getServletContext();
+		
+		Path directory = Paths.get(context.getRealPath(config.getInitParameter("imagesFolder")));
+		
+
+		try {
+			Files.walk(directory, 1).filter(entry -> !entry.equals(directory))
+		    .filter(Files::isDirectory).forEach(subdirectory ->
+		    {
+		    System.out.println(subdirectory.getFileName());
+		    categoryList.add(subdirectory.getFileName().toString());
+		    });
+		} catch (IOException e) {
+			 System.out.println("Fichier vide "+e.getMessage());
+		}
+		
+		context.setAttribute("listCategory", categoryList);
     	
     }
     
@@ -96,26 +113,10 @@ public class FrontController extends HttpServlet {
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
+		
 		getServletContext().getRequestDispatcher(VUE_RESULTAT).forward(req, resp);
 		
-		Path directory = Paths.get("/WEB-INF/images");
-
-		try {
-		    List<File> directories =
-		            Files.walk(directory)
-		                 .filter(Files::isDirectory)
-		                 .map(Path::toFile)
-		                 .collect(Collectors.toList());
-		    for(File file : directories) {
-		         System.out.println("File name: "+file.getName());
-		         System.out.println("File path: "+file.getAbsolutePath());
-		         System.out.println("Size :"+file.getTotalSpace());
-		         System.out.println(" ");
-		      }
-		} catch (IOException e) {
-		    // process exception
-			 System.out.println("Fichier vide");
-		}
+		
 	      
 		
 	}

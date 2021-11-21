@@ -35,14 +35,12 @@
 		<br>
 		<div>
 		<label for="cat">Choix de categorie :</label>
-			   <select id="cat" name="cat" value='<c:out value="${requestProcessor.favoriteCategory}"/>'>
+			   <select id="cat" name="cat">
+			   
 				    <option value="">--Choisissez une catégorie d'images--</option>
-				    <option value="dog">Dog</option>
-				    <option value="cat">Cat</option>
-				    <option value="hamster">Hamster</option>
-				    <option value="parrot">Parrot</option>
-				    <option value="spider">Spider</option>
-				    <option value="goldfish">Goldfish</option>
+				    <c:forEach var="category" items="${listCategory}" >
+					  <option value="${category}">${category}</option>
+					</c:forEach>
 				</select>
 		</div>
 		<br>
