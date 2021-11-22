@@ -1,8 +1,11 @@
 package controllers;
+import java.io.Serializable;
 
 import models.UserService;
 
-public class RequestProcessor {
+public class RequestProcessor implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 	
 	private String login;
 	private String email;
@@ -10,11 +13,25 @@ public class RequestProcessor {
 	private String confPass;
 	private String favoriteCategory;
 	
-	
 	public RequestProcessor() {
         super();
     }
 	
+	public static String whichPage (String page) {
+			
+			if (page==null) {
+				return "gallery" ;
+				
+			}else if (page.equals("registration")) {
+				
+				return "registration";
+			}
+			
+			return "gallery";
+			
+		}
+		
+
 	public RequestProcessor(String login, String email, String password,String confPass, String cat)
 			throws DonneesInvalidesException {
 		   
@@ -61,10 +78,23 @@ public class RequestProcessor {
 	public String getConfPass() {
 		return confPass;
 	}
+	
+	public String getLogin() {
+		return login;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public String getCat() {
+		return favoriteCategory;
+	}
 
 	public void setConfPass(String confPass) {
 		this.confPass = confPass;
 	}
-
 	
+
 }

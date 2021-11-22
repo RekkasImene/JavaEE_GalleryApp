@@ -15,5 +15,7 @@ public class UserService extends User{
 		super.setPassword(password);
 		super.setFavoriteCategory(favor);
 	}
+	
+	
 
 }

@@ -7,7 +7,7 @@
 <title>Gallery</title>
 </head>
 <body>
-<jsp:include page="views/gallery.jsp"/>
+<jsp:include page="/gallery"/>
 
 </body>
 </html>

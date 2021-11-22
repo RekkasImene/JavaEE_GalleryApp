@@ -8,8 +8,8 @@
 </head>
 <body>
 	<ul>
-	  <li><a href="${pageContext.request.contextPath }/views/gallery.jsp">Gallery</a></li>
-	  <li><a href="${pageContext.request.contextPath }/views/registration.jsp">Sign up</a></li>
+	  <li><a href="gallery?page=gallery">Gallery</a></li>
+	  <li><a href="gallery?page=registration">Sign up</a></li>
 	</ul>
 </body>
 </html>

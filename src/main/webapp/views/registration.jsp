@@ -15,22 +15,22 @@
 		<br>
 		<div>
 			<label for="login">Login :</label>
-			<input type="text" size="20" id="login" name="login" value='<c:out value="${requestProcessor.login}"/>'>
+			<input type="text" size="20" id="login" name="login" value='<c:out value="${requestProcessor.getLogin()}"/>'>
 		</div>
 		<br>
 		<div>
 			<label for="email">Adresse email :</label>
-			<input type="email" size="20" id="email" name="email" value='<c:out value="${requestProcessor.email}"/>'>
+			<input type="email" size="20" id="email" name="email" value='<c:out value="${requestProcessor.getEmail()}"/>'>
 		</div>
 		<br>
 		<div>
 			<label for="password">Mot de passe :</label>
-			<input type="password" size="20" id="password" name="password" value='<c:out value="${requestProcessor.password}"/>'>
+			<input type="password" size="20" id="password" name="password" value='<c:out value="${requestProcessor.getPassword()}"/>'>
 		</div>
 		<br>
 		<div>
 			<label for="confPass">Confirmation du mot de pass :</label>
-			<input type="password" size="20" id="confPass" name="confPass" value='<c:out value="${requestProcessor.confPass}"/>'>
+			<input type="password" size="20" id="confPass" name="confPass" value='<c:out value="${requestProcessor.getConfPass()}"/>'>
 		</div>
 		<br>
 		<div>
@@ -39,7 +39,17 @@
 			   
 				    <option value="">--Choisissez une catégorie d'images--</option>
 				    <c:forEach var="category" items="${listCategory}" >
-					  <option value="${category}">${category}</option>
+				    
+				    	<c:choose>
+						    <c:when test="${category == requestProcessor.getCat()}">
+						       <option value="${category}" selected>${category}</option>
+						    </c:when>    
+						    <c:otherwise>
+						        <option value="${category}">${category}</option>
+						    </c:otherwise>
+						</c:choose>	
+				    
+					  
 					</c:forEach>
 				</select>
 		</div>
@@ -49,9 +59,19 @@
    		 </div>
    		 <br>
 	</form>
-	
-<div id="error">
-     <c:out value="${message}" escapeXml="false"/>
- </div>
+
+<c:choose>
+    <c:when test="${message=='Succes'}">
+        <div id="succes">
+     		<c:out value="${message}" escapeXml="false"/>
+ 		</div>
+    </c:when>    
+    <c:otherwise>
+        <div id="error">
+		     <c:out value="${message}" escapeXml="false"/>
+		 </div>
+    </c:otherwise>
+</c:choose>	
+
 </body>
 </html>

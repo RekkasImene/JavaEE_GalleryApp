@@ -1,14 +1,12 @@
 package models;
 
-public class Image {
+import java.io.Serializable;
+
+public class Image implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private String path;
-	private String nomI;
-	
-	Image(String nomI, String path){
-		this.path=path;
-		this.nomI=nomI;
-		}
+	private String nom;
 	
 	public String getPath() {
 		return path;
@@ -16,11 +14,11 @@ public class Image {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	public String getNomI() {
-		return nomI;
+	public String getNom() {
+		return nom;
 	}
-	public void setNomI(String nomI) {
-		this.nomI = nomI;
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 
 }

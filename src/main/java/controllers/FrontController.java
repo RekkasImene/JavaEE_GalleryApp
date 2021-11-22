@@ -1,22 +1,25 @@
 package controllers;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import java.util.Objects;
+
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import models.Image;
+import models.ImageBank;
+import models.ImageCategory;
 
 
 /*@WebServlet( 
@@ -31,92 +34,86 @@ public class FrontController extends HttpServlet {
     private static final String VUE_FORMULAIRE = "/views/registration.jsp";
     private static final String VUE_RESULTAT = "/views/gallery.jsp";
     
-    static File dir;
-    static File customerDataFile;
-    List<String> categoryList= new ArrayList<String>();
-
-    // array of supported extensions (use a List if you prefer)
-    static final String[] EXTENSIONS = new String[]{
-        "gif", "png", "bmp","jpg","jpeg","svg" // and other formats you need
-    };
     
- // filter to identify images based on their extensions
-    static final FilenameFilter IMAGE_FILTER = new FilenameFilter() {
+    static File dir;
+    List<String> categoryList= new ArrayList<String>();
+    public final ImageBank imageBank = new ImageBank();
+    public String categoyU;
 
-        @Override
-        public boolean accept(final File dir, final String name) {
-            for (final String ext : EXTENSIONS) {
-                if (name.endsWith("." + ext)) {
-                    return (true);
-                }
-            }
-            return (false);
-        }
-    };
-
-
+    @Override
     public void init(ServletConfig config) throws ServletException{
     	super.init(config);
-    	//dir = new File(config.getInitParameter("imagesFolder"));
-    	
     	ServletContext context = getServletContext();
+    	String imagesPath =context.getRealPath(config.getInitParameter("imagesFolder"));
 		
-		Path directory = Paths.get(context.getRealPath(config.getInitParameter("imagesFolder")));
+		Path directory = Paths.get(imagesPath);
 		
 
 		try {
 			Files.walk(directory, 1).filter(entry -> !entry.equals(directory))
 		    .filter(Files::isDirectory).forEach(subdirectory ->
 		    {
-		    System.out.println(subdirectory.getFileName());
-		    categoryList.add(subdirectory.getFileName().toString());
+		    String categoryName =subdirectory.getFileName().toString();
+		    System.out.println(categoryName);
+		    categoryList.add(categoryName);
+		    ImageCategory category = new ImageCategory();
+            category.setNom(categoryName);
+            imageBank.addImageCategory(category);
+            
+            dir = new File(imagesPath+"/"+categoryName);
+            for (String imageName: Objects.requireNonNull(dir.list())) {
+            	System.out.println(imageName);
+                Image image = new Image();
+                image.setNom(imageName);
+                image.setPath(categoryName);
+                category.addImage(image);
+            }
+            
+		    
 		    });
+			
 		} catch (IOException e) {
 			 System.out.println("Fichier vide "+e.getMessage());
 		}
 		
 		context.setAttribute("listCategory", categoryList);
+		context.setAttribute("bank", imageBank);
+		
+		if(context.getAttribute("category")== null) {
+			context.removeAttribute("images");
+			context.setAttribute("images",((ImageBank) context.getAttribute("bank")).getRandomImages(50));
+		}else {
+			
+			context.removeAttribute("images");
+		    context.setAttribute("images",((ImageBank) context.getAttribute("bank")).getCategoryImages(context.getAttribute("category").toString()));
+		}
     	
     }
     
-    	public void contextInitialized(ServletContextEvent e) {
-
-    	dir = new File(e.getServletContext().getInitParameter("imagesFolder"));
     	
-    	System.out.println("name folder image : " + dir.toString());
-    	
-        customerDataFile = new File(dir, "/accordin/image_0001.jpg");
-        
-        if (dir.isDirectory()) { // make sure it's a directory
-            for (final File f : dir.listFiles(IMAGE_FILTER)) {
-                BufferedImage img = null;
-
-                try {
-                    img = ImageIO.read(f);
-
-                    // you probably want something more involved here
-                    // to display in your UI
-                    System.out.println("image: " + f.getName());
-                    System.out.println(" width : " + img.getWidth());
-                    System.out.println(" height: " + img.getHeight());
-                    System.out.println(" size  : " + f.length());
-                } catch (final IOException E) {
-                    // handle errors here
-                }
-            }
-        }
-    }
-   
     
 
 
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
+		RequestDispatcher rd;
+		if(categoyU == null) {
+			req.removeAttribute("images");
+			req.setAttribute("images",imageBank.getRandomImages(50));
+		}else {
+			req.removeAttribute("images");
+			req.setAttribute("images",imageBank.getCategoryImages(categoyU));
+		}
 		
-		getServletContext().getRequestDispatcher(VUE_RESULTAT).forward(req, resp);
-		
-		
+		if (RequestProcessor.whichPage(req.getParameter("page")).equals("gallery")) {
+			rd = req.getRequestDispatcher(VUE_RESULTAT);
+			rd.forward(req, resp);
+			
+		}else if (RequestProcessor.whichPage(req.getParameter("page")).equals("registration")) {
+			rd = req.getRequestDispatcher(VUE_FORMULAIRE);
+			rd.forward(req, resp);
+		}
 	      
 		
 	}
@@ -136,7 +133,13 @@ public class FrontController extends HttpServlet {
 	      RequestProcessor reqProc = new RequestProcessor(login,email,password,confPass,cat);
 	      
 	      req.setAttribute("requestProcessor", reqProc);
-	      getServletContext().getRequestDispatcher(VUE_RESULTAT).forward(req, resp);
+	      req.setAttribute("message","Succes");
+	      getServletContext().getRequestDispatcher(VUE_FORMULAIRE).forward(req, resp);
+	      
+	      req.removeAttribute("category");
+	      req.setAttribute("category",cat);
+	      categoyU=cat;
+	      
 	    } catch (DonneesInvalidesException e) {
 	      req.setAttribute("message","Error <br><br>"+e.getMessage());
 	      getServletContext().getRequestDispatcher(VUE_FORMULAIRE).forward(req, resp);

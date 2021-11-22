@@ -14,5 +14,12 @@
 	<h1>Gallery</h1>
 </div>
 
+<div>
+
+<c:forEach var="image" items="${images}">
+        <img src="images/${image.getPath()}/${image.getNom()}" alt="${image.getNom()}" width="150" height="150"/>
+</c:forEach>
+</div>
+
 </body>
 </html>

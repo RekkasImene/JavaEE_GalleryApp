@@ -1,27 +1,39 @@
 package models;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class ImageCategory {
-	private final List<Image> images;
-	private String nomC;
+public class ImageCategory implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	private final List<Image> imagesList;
+	private String nom;
 	
-	ImageCategory(String nomC,List<Image> images){
-		this.images=images;
-		this.nomC=nomC;
-	}
+	public ImageCategory() {
+        imagesList = new ArrayList<>();
+    }
+
+    public void addImage(Image image){
+        imagesList.add(image);
+    }
 	
-	public List<Image> getTotalImagesInCategory(){
-		return images;
+	
+	public List<Image> getImagesList(){
+		return imagesList;
 	}
 
-	public String getNomC() {
-		return nomC;
+	public String getNom() {
+		return nom;
 	}
 
-	public void setNomC(String nomC) {
-		this.nomC = nomC;
+	public void setNom(String nom) {
+		this.nom= nom;
 	}
+
+    public Image getRandomImages() {
+        return imagesList.get((int) (Math.random()*imagesList.size()));
+    }
 	
 
 }
